@@ -1,0 +1,552 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curso NR-10 - Segurança em Eletricidade</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .parallax { background-attachment: fixed; background-size: cover; background-position: center; }
+    .accordion-content { transition: max-height 0.3s ease-out; }
+    .correct { background-color: #22C55E !important; color: white !important; }
+    .incorrect { background-color: #EF4444 !important; color: white !important; }
+    .disabled { pointer-events: none; opacity: 0.6; }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+  <header class="bg-blue-800 dark:bg-blue-900 text-white shadow-md fixed w-full z-50">
+    <nav class="container mx-auto flex justify-between items-center p-4">
+      <img src="https://i.imgur.com/BcCZUQw.png" alt="Logo GATE" class="h-12">
+      <div class="hidden md:flex space-x-6">
+        <a href="#sobre" class="hover:text-orange-500">Sobre</a>
+        <a href="#modulos" class="hover:text-orange-500">Módulos</a>
+        <a href="#depoimentos" class="hover:text-orange-500">Depoimentos</a>
+        <a href="#faq" class="hover:text-orange-500">FAQ</a>
+      </div>
+      <button id="darkModeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+        <i class="fas fa-moon dark:hidden"></i>
+        <i class="fas fa-sun hidden dark:block"></i>
+      </button>
+      <button id="mobileMenuButton" class="md:hidden p-2">
+        <i class="fas fa-bars"></i>
+      </button>
+    </nav>
+    <div id="mobileMenu" class="hidden md:hidden bg-blue-800 dark:bg-blue-900 text-white shadow-md">
+      <a href="#sobre" class="block p-4 hover:bg-blue-700 dark:hover:bg-blue-800">Sobre</a>
+      <a href="#modulos" class="block p-4 hover:bg-blue-700 dark:hover:bg-blue-800">Módulos</a>
+      <a href="#depoimentos" class="block p-4 hover:bg-blue-700 dark:hover:bg-blue-800">Depoimentos</a>
+      <a href="#faq" class="block p-4 hover:bg-blue-700 dark:hover:bg-blue-800">FAQ</a>
+    </div>
+  </header>
+
+  <section class="parallax h-screen flex items-center justify-center text-white bg-blue-800 dark:bg-blue-900" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://via.placeholder.com/1200x600.png?text=NR10+Seguranca+Eletrica');">
+    <div class="text-center">
+      <h1 class="text-5xl md:text-6xl font-bold mb-4">Curso NR-10 - Segurança em Eletricidade</h1>
+      <p class="text-xl md:text-2xl mb-6">Capacitação completa para segurança em instalações elétricas.</p>
+      <a href="#modulos" class="bg-orange-500 text-white px-6 py-3 rounded-full hover:bg-orange-600">Comece Agora</a>
+    </div>
+  </section>
+
+  <section id="sobre" class="py-16 bg-gray-50 dark:bg-gray-800">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-8">Sobre o Curso</h2>
+      <p class="text-lg text-center max-w-3xl mx-auto">
+        O curso NR-10 capacita profissionais para atuar com segurança em instalações e serviços elétricos, conforme a Norma Regulamentadora № 10. Aborda riscos, medidas de controle, normas técnicas, primeiros socorros e responsabilidades, garantindo prevenção de acidentes em sistemas de baixa e alta tensão.
+      </p>
+    </div>
+  </section>
+
+  <section id="modulos" class="py-16 bg-white dark:bg-gray-900">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-8">Módulos do Curso</h2>
+      <div x-data="{ openModule: null, progress: 0 }" class="space-y-4">
+        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+          <div class="bg-blue-600 h-2.5 rounded-full" :style="'width: ' + progress + '%'"></div>
+        </div>
+
+        <!-- Módulo 1 -->
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md">
+          <button @click="openModule = openModule === 1 ? null : 1" class="w-full text-left p-4 flex justify-between items-center">
+            <h3 class="text-xl font-semibold">1. Introdução e Riscos Elétricos</h3>
+            <i class="fas" :class="openModule === 1 ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+          <div x-show="openModule === 1" class="accordion-content p-4">
+            <p>Introdução à segurança com eletricidade, destacando riscos como choques, queimaduras e quedas, e a importância da NR-10 para prevenção de acidentes.</p>
+            <div class="bg-blue-100 dark:bg-blue-200 text-blue-900 p-4 rounded-lg my-4">
+              <h4 class="font-semibold">Exemplo Prático</h4>
+              <p>Um eletricista sofre choque por ignorar cabo energizado, evidenciando a necessidade de reconhecer riscos invisíveis.</p>
+            </div>
+            <h4 class="font-semibold mb-2">Exercícios</h4>
+            <div class="space-y-4">
+              <div>
+                <p class="font-medium">1. Por que a eletricidade é um risco invisível?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Não é percebida (pág. 3).', 'Incorreto.')">a) É colorida</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Não é percebida (pág. 3).', 'Incorreto.')">b) Não é percebida pelos sentidos</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Não é percebida (pág. 3).', 'Incorreto.')">c) É segura</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Não é percebida (pág. 3).', 'Incorreto.')">d) É barulhenta</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+              <div>
+                <p class="font-medium">2. Qual é o objetivo da NR-10?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Prevenir acidentes (pág. 3).', 'Incorreto.')">a) Aumentar custos</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Prevenir acidentes (pág. 3).', 'Incorreto.')">b) Reduzir produtividade</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Prevenir acidentes (pág. 3).', 'Incorreto.')">c) Prevenir acidentes</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Prevenir acidentes (pág. 3).', 'Incorreto.')">d) Substituir EPIs</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+              <div>
+                <p class="font-medium">3. Qual fator define a gravidade de um choque?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Intensidade da corrente (pág. 10).', 'Incorreto.')">a) Cor do cabo</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Intensidade da corrente (pág. 10).', 'Incorreto.')">b) Intensidade da corrente</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Intensidade da corrente (pág. 10).', 'Incorreto.')">c) Tamanho do condutor</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Intensidade da corrente (pág. 10).', 'Incorreto.')">d) Tipo de EPI</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+            </div>
+            <button class="mt-4 bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600" @click="progress += 16.67">Concluir Módulo</button>
+          </div>
+        </div>
+
+        <!-- Módulo 2 -->
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md">
+          <button @click="openModule = openModule === 2 ? null : 2" class="w-full text-left p-4 flex justify-between items-center">
+            <h3 class="text-xl font-semibold">2. Sistema Elétrico de Potência (SEP)</h3>
+            <i class="fas" :class="openModule === 2 ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+          <div x-show="openModule === 2" class="accordion-content p-4">
+            <p>O SEP inclui geração, transmissão e distribuição de energia, com definições de alta e baixa tensão.</p>
+            <div class="bg-blue-100 dark:bg-blue-200 text-blue-900 p-4 rounded-lg my-4">
+              <h4 class="font-semibold">Exemplo Prático</h4>
+              <p>Energia gerada a 440 kV é transformada para 220 V em subestações, chegando às residências.</p>
+            </div>
+            <h4 class="font-semibold mb-2">Exercícios</h4>
+            <div class="space-y-4">
+              <div>
+                <p class="font-medium">1. Qual é a faixa de baixa tensão em CA?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! 50-1000 V (pág. 5).', 'Incorreto.')">a) Até 50 V</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! 50-1000 V (pág. 5).', 'Incorreto.')">b) 50 a 1000 V</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! 50-1000 V (pág. 5).', 'Incorreto.')">c) Acima de 1000 V</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! 50-1000 V (pág. 5).', 'Incorreto.')">d) 120 a 1500 V</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+              <div>
+                <p class="font-medium">2. Qual é a principal fonte de energia no Brasil?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'a', 'Correto! Hidrelétricas (pág. 4).', 'Incorreto.')">a) Hidrelétricas</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'a', 'Correto! Hidrelétricas (pág. 4).', 'Incorreto.')">b) Termoelétricas</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'a', 'Correto! Hidrelétricas (pág. 4).', 'Incorreto.')">c) Eólicas</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'a', 'Correto! Hidrelétricas (pág. 4).', 'Incorreto.')">d) Solares</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+              <div>
+                <p class="font-medium">3. O que caracteriza o SEP?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Geração, transmissão, distribuição (pág. 4).', 'Incorreto.')">a) Apenas consumo</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Geração, transmissão, distribuição (pág. 4).', 'Incorreto.')">b) Apenas transmissão</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Geração, transmissão, distribuição (pág. 4).', 'Incorreto.')">c) Geração, transmissão e distribuição</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Geração, transmissão, distribuição (pág. 4).', 'Incorreto.')">d) Apenas manutenção</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+            </div>
+            <button class="mt-4 bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600" @click="progress += 16.67">Concluir Módulo</button>
+          </div>
+        </div>
+
+        <!-- Módulo 3 -->
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md">
+          <button @click="openModule = openModule === 3 ? null : 3" class="w-full text-left p-4 flex justify-between items-center">
+            <h3 class="text-xl font-semibold">3. Análise e Medidas de Controle</h3>
+            <i class="fas" :class="openModule === 3 ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+          <div x-show="openModule === 3" class="accordion-content p-4">
+            <p>Análise Preliminar de Risco (APR) e medidas como desenergização, aterramento e barreiras para controlar riscos elétricos e não elétricos.</p>
+            <div class="bg-blue-100 dark:bg-blue-200 text-blue-900 p-4 rounded-lg my-4">
+              <h4 class="font-semibold">Exemplo Prático</h4>
+              <p>APR para manutenção em linha de 13,8 kV inclui desenergização e cadeados para evitar reenergização acidental.</p>
+            </div>
+            <h4 class="font-semibold mb-2">Exercícios</h4>
+            <div class="space-y-4">
+              <div>
+                <p class="font-medium">1. Qual é o objetivo da APR?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Controlar riscos (pág. 16).', 'Incorreto.')">a) Aumentar custos</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Controlar riscos (pág. 16).', 'Incorreto.')">b) Prever e controlar riscos</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Controlar riscos (pág. 16).', 'Incorreto.')">c) Substituir EPIs</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Controlar riscos (pág. 16).', 'Incorreto.')">d) Reduzir produtividade</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+              <div>
+                <p class="font-medium">2. Qual é o primeiro passo da desenergização?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Seccionamento (pág. 19).', 'Incorreto.')">a) Aterramento</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Seccionamento (pág. 19).', 'Incorreto.')">b) Seccionamento</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Seccionamento (pág. 19).', 'Incorreto.')">c) Sinalização</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Seccionamento (pág. 19).', 'Incorreto.')">d) Verificação</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+              <div>
+                <p class="font-medium">3. O que impede contato com partes vivas?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Barreiras (pág. 22).', 'Incorreto.')">a) Cadeado</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Barreiras (pág. 22).', 'Incorreto.')">b) Barreira</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Barreiras (pág. 22).', 'Incorreto.')">c) Disjuntor</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Barreiras (pág. 22).', 'Incorreto.')">d) Detector</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+            </div>
+            <button class="mt-4 bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600" @click="progress += 16.67">Concluir Módulo</button>
+          </div>
+        </div>
+
+        <!-- Módulo 4 -->
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md">
+          <button @click="openModule = openModule === 4 ? null : 4" class="w-full text-left p-4 flex justify-between items-center">
+            <h3 class="text-xl font-semibold">4. Normas Técnicas e Regulamentações</h3>
+            <i class="fas" :class="openModule === 4 ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+          <div x-show="openModule === 4" class="accordion-content p-4">
+            <p>Normas NBR 5410 (baixa tensão), NBR 14039 (média tensão) e NRs (NR-1, NR-4, NR-6, NR-10) para segurança em projetos e operações elétricas.</p>
+            <div class="bg-blue-100 dark:bg-blue-200 text-blue-900 p-4 rounded-lg my-4">
+              <h4 class="font-semibold">Exemplo Prático</h4>
+              <p>Aplicação da NBR 5410 em instalação comercial de 220 V com disjuntores e aterramento adequados.</p>
+            </div>
+            <h4 class="font-semibold mb-2">Exercícios</h4>
+            <div class="space-y-4">
+              <div>
+                <p class="font-medium">1. A NBR 5410 aplica-se a qual tensão?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! 50-1000 V (pág. 25).', 'Incorreto.')">a) Alta tensão</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! 50-1000 V (pág. 25).', 'Incorreto.')">b) Baixa tensão</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! 50-1000 V (pág. 25).', 'Incorreto.')">c) Extra baixa tensão</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! 50-1000 V (pág. 25).', 'Incorreto.')">d) Transmissão</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+              <div>
+                <p class="font-medium">2. Qual NR regula o uso de EPIs?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! NR-6 (pág. 29).', 'Incorreto.')">a) NR-1</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! NR-6 (pág. 29).', 'Incorreto.')">b) NR-4</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! NR-6 (pág. 29).', 'Incorreto.')">c) NR-6</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! NR-6 (pág. 29).', 'Incorreto.')">d) NR-9</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+              <div>
+                <p class="font-medium">3. O que a NR-10 garante?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Segurança elétrica (pág. 59).', 'Incorreto.')">a) Normas de construção</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Segurança elétrica (pág. 59).', 'Incorreto.')">b) Segurança em instalações elétricas</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Segurança elétrica (pág. 59).', 'Incorreto.')">c) Gestão de resíduos</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Segurança elétrica (pág. 59).', 'Incorreto.')">d) Controle de ruídos</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+            </div>
+            <button class="mt-4 bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600" @click="progress += 16.67">Concluir Módulo</button>
+          </div>
+        </div>
+
+        <!-- Módulo 5 -->
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md">
+          <button @click="openModule = openModule === 5 ? null : 5" class="w-full text-left p-4 flex justify-between items-center">
+            <h3 class="text-xl font-semibold">5. Proteção e Combate a Incêndios</h3>
+            <i class="fas" :class="openModule === 5 ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+          <div x-show="openModule === 5" class="accordion-content p-4">
+            <p>Métodos de extinção (resfriamento, abafamento) e uso de extintores para incêndios elétricos (classe C).</p>
+            <div class="bg-blue-100 dark:bg-blue-200 text-blue-900 p-4 rounded-lg my-4">
+              <h4 class="font-semibold">Exemplo Prático</h4>
+              <p>Uso de extintor de CO2 em incêndio classe C em painel elétrico, evitando condução elétrica.</p>
+            </div>
+            <h4 class="font-semibold mb-2">Exercícios</h4>
+            <div class="space-y-4">
+              <div>
+                <p class="font-medium">1. Qual agente é indicado para incêndios classe C?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! CO2 (pág. 47).', 'Incorreto.')">a) Água</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! CO2 (pág. 47).', 'Incorreto.')">b) Espuma</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! CO2 (pág. 47).', 'Incorreto.')">c) CO2</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! CO2 (pág. 47).', 'Incorreto.')">d) Água pressurizada</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+              <div>
+                <p class="font-medium">2. Qual método extingue por abafamento?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Reduz oxigênio (pág. 46).', 'Incorreto.')">a) Resfriamento</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Reduz oxigênio (pág. 46).', 'Incorreto.')">b) Retirada do comburente</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Reduz oxigênio (pág. 46).', 'Incorreto.')">c) Retirada do material</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Reduz oxigênio (pág. 46).', 'Incorreto.')">d) Extinção química</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+              <div>
+                <p class="font-medium">3. Por que evitar água em incêndios classe C?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Conduz eletricidade (pág. 47).', 'Incorreto.')">a) É ineficaz</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Conduz eletricidade (pág. 47).', 'Incorreto.')">b) É lenta</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Conduz eletricidade (pág. 47).', 'Incorreto.')">c) Conduz eletricidade</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Conduz eletricidade (pág. 47).', 'Incorreto.')">d) É cara</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+            </div>
+            <button class="mt-4 bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600" @click="progress += 16.67">Concluir Módulo</button>
+          </div>
+        </div>
+
+        <!-- Módulo 6 -->
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md">
+          <button @click="openModule = openModule === 6 ? null : 6" class="w-full text-left p-4 flex justify-between items-center">
+            <h3 class="text-xl font-semibold">6. Primeiros Socorros e Documentação</h3>
+            <i class="fas" :class="openModule === 6 ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+          <div x-show="openModule === 6" class="accordion-content p-4">
+            <p>Procedimentos de primeiros socorros para acidentes elétricos e gestão do Prontuário de Instalações Elétricas.</p>
+            <div class="bg-blue-100 dark:bg-blue-200 text-blue-900 p-4 rounded-lg my-4">
+              <h4 class="font-semibold">Exemplo Prático</h4>
+              <p>Socorro a vítima de choque com parada respiratória e atualização de diagrama unifilar no prontuário.</p>
+            </div>
+            <h4 class="font-semibold mb-2">Exercícios</h4>
+            <div class="space-y-4">
+              <div>
+                <p class="font-medium">1. Qual é a primeira etapa da análise primária?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Determinar inconsciência (pág. 53).', 'Incorreto.')">a) Checar pulso</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Determinar inconsciência (pág. 53).', 'Incorreto.')">b) Determinar inconsciência</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Determinar inconsciência (pág. 53).', 'Incorreto.')">c) Aplicar RCP</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Determinar inconsciência (pág. 53).', 'Incorreto.')">d) Examinar lesões</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+              <div>
+                <p class="font-medium">2. O que o Prontuário deve conter?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Diagramas unifilares (pág. 42).', 'Incorreto.')">a) Apenas fotos</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Diagramas unifilares (pág. 42).', 'Incorreto.')">b) Diagramas unifilares</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Diagramas unifilares (pág. 42).', 'Incorreto.')">c) Apenas EPIs</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'b', 'Correto! Diagramas unifilares (pág. 42).', 'Incorreto.')">d) Apenas contatos</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+              <div>
+                <p class="font-medium">3. Quem atualiza o Prontuário?</p>
+                <div class="space-y-2">
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Responsável técnico (pág. 42).', 'Incorreto.')">a) Eletricista comum</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Responsável técnico (pág. 42).', 'Incorreto.')">b) Operador</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Responsável técnico (pág. 42).', 'Incorreto.')">c) Responsável técnico</button>
+                  <button class="w-full text-left p-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600" onclick="checkAnswer(this, 'c', 'Correto! Responsável técnico (pág. 42).', 'Incorreto.')">d) Supervisor de vendas</button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 feedback"></p>
+              </div>
+            </div>
+            <button class="mt-4 bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600" @click="progress += 16.67">Concluir Módulo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="depoimentos" class="py-16 bg-gray-50 dark:bg-gray-800">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-8">Depoimentos</h2>
+      <div x-data="{ currentSlide: 0 }" class="relative">
+        <div class="overflow-hidden">
+          <div class="flex transition-transform duration-500" :style="'transform: translateX(-' + (currentSlide * 100) + '%)'">
+            <div class="min-w-full p-4">
+              <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md text-center">
+                <p class="text-lg italic">"O curso NR-10 foi essencial para minha carreira. Aprendi a identificar riscos!"</p>
+                <p class="mt-4 font-semibold">João Silva, Eletricista</p>
+              </div>
+            </div>
+            <div class="min-w-full p-4">
+              <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md text-center">
+                <p class="text-lg italic">"A abordagem prática dos módulos me deu confiança em alta tensão."</p>
+                <p class="mt-4 font-semibold">Maria Oliveira, Técnica</p>
+              </div>
+            </div>
+            <div class="min-w-full p-4">
+              <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md text-center">
+                <p class="text-lg italic">"Os exercícios interativos ajudaram a fixar o conteúdo. Recomendo!"</p>
+                <p class="mt-4 font-semibold">Carlos Mendes, Engenheiro</p>
+              </div>
+            </div>
+            <div class="min-w-full p-4">
+              <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md text-center">
+                <p class="text-lg italic">"O suporte do GATE e a clareza do curso fizeram a diferença."</p>
+                <p class="mt-4 font-semibold">Ana Costa, Supervisora</p>
+              </div>
+            </div>
+            <div class="min-w-full p-4">
+              <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md text-center">
+                <p class="text-lg italic">"Aprendi a importância da desenergização no meu dia a dia."</p>
+                <p class="mt-4 font-semibold">Pedro Almeida, Técnico</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button @click="currentSlide = (currentSlide - 1 + 5) % 5" class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-blue-600 text-white p-2 rounded-full">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button @click="currentSlide = (currentSlide + 1) % 5" class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-blue-600 text-white p-2 rounded-full">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="py-16 bg-white dark:bg-gray-900">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-8">Perguntas Frequentes</h2>
+      <div x-data="{ openFaq: null }" class="space-y-4">
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md">
+          <button @click="openFaq = openFaq === 1 ? null : 1" class="w-full text-left p-4 flex justify-between items-center">
+            <h3 class="text-lg font-semibold">Quem deve fazer o curso NR-10?</h3>
+            <i class="fas" :class="openFaq === 1 ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+          <div x-show="openFaq === 1" class="p-4">
+            <p>Profissionais que trabalham diretamente ou indiretamente com instalações elétricas, como eletricistas e técnicos (pág. 3).</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md">
+          <button @click="openFaq = openFaq === 2 ? null : 2" class="w-full text-left p-4 flex justify-between items-center">
+            <h3 class="text-lg font-semibold">Qual a validade do curso NR-10?</h3>
+            <i class="fas" :class="openFaq === 2 ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+          <div x-show="openFaq === 2" class="p-4">
+            <p>2 anos, com reciclagem obrigatória (pág. 59).</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md">
+          <button @click="openFaq = openFaq === 3 ? null : 3" class="w-full text-left p-4 flex justify-between items-center">
+            <h3 class="text-lg font-semibold">O curso inclui prática?</h3>
+            <i class="fas" :class="openFaq === 3 ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+          <div x-show="openFaq === 3" class="p-4">
+            <p>Sim, inclui exemplos práticos e exercícios interativos (pág. 16).</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md">
+          <button @click="openFaq = openFaq === 4 ? null : 4" class="w-full text-left p-4 flex justify-between items-center">
+            <h3 class="text-lg font-semibold">Quais EPIs são obrigatórios?</h3>
+            <i class="fas" :class="openFaq === 4 ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+          <div x-show="openFaq === 4" class="p-4">
+            <p>Luvas isolantes, botas dielétricas e capacetes, conforme NR-6 (pág. 29).</p>
+          </div>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md">
+          <button @click="openFaq = openFaq === 5 ? null : 5" class="w-full text-left p-4 flex justify-between items-center">
+            <h3 class="text-lg font-semibold">O curso aborda primeiros socorros?</h3>
+            <i class="fas" :class="openFaq === 5 ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+          <div x-show="openFaq === 5" class="p-4">
+            <p>Sim, ensina procedimentos para acidentes elétricos (pág. 51).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-blue-800 text-white py-8">
+    <div class="container mx-auto px-4 text-center">
+      <img src="https://i.imgur.com/BcCZUQw.png" alt="Logo GATE" class="h-16 mx-auto mb-4">
+      <p class="mb-2">Entre em contato:</p>
+      <p class="mb-2">E-mail: <a href="mailto:coordenadormedeiros@gmail.com" class="underline">coordenadormedeiros@gmail.com</a></p>
+      <p class="mb-2">Telefone: <a href="tel:+5561981397421" class="underline">+55 61 98139-7421</a></p>
+      <div class="flex justify-center space-x-4">
+        <a href="https://instagram.com" target="_blank" class="hover:text-orange-500"><i class="fab fa-instagram"></i></a>
+        <a href="https://linkedin.com" target="_blank" class="hover:text-orange-500"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function checkAnswer(button, correctAnswer, correctMessage, incorrectMessage) {
+      const parent = button.parentElement;
+      const feedback = parent.nextElementSibling;
+      const buttons = parent.querySelectorAll('button');
+      buttons.forEach(btn => btn.classList.add('disabled'));
+      if (button.textContent.startsWith(correctAnswer + ')')) {
+        button.classList.add('correct');
+        feedback.textContent = correctMessage;
+        feedback.classList.add('text-green-600', 'dark:text-green-400');
+      } else {
+        button.classList.add('incorrect');
+        feedback.textContent = incorrectMessage;
+        feedback.classList.add('text-red-600', 'dark:text-red-400');
+      }
+    }
+
+    document.getElementById('darkModeToggle').addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+    });
+
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark');
+    }
+
+    document.getElementById('mobileMenuButton').addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    });
+  </script>
+</body>
+</html>
