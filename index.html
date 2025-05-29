@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treinamento: NR-10 Segurança Elétrica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <style>
+        .accordion-button {
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .accordion-button:hover {
+            background-color: #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .accordion-content {
+            transition: opacity 0.3s ease;
+            opacity: 1;
+        }
+        .sidebar {
+            position: sticky;
+            top: 0.5rem;
+            max-height: calc(100vh - 1rem);
+            overflow-y: auto;
+        }
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1.2em;
+        }
+        #content-area {
+            transition: opacity 0.3s ease;
+        }
+        #content-area.fade {
+            opacity: 0;
+        }
+        .social-link:hover {
+            text-decoration: underline;
+        }
+        .quiz-option {
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.3s ease;
+            background: #e5e7eb;
+        }
+        .quiz-option:hover {
+            background: #d1d5db;
+        }
+        .correct {
+            background: #10b981 !important;
+            color: #ffffff;
+        }
+        .incorrect {
+            background: #ef4444 !important;
+            color: #ffffff;
+        }
+        .progress-container {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #fff;
+            padding: 0.5rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .progress-bar {
+            height: 1rem;
+            background: #f97316;
+            transition: width 0.3s ease;
+            border-radius: 0.25rem;
+        }
+        .conclude-button:disabled {
+            background: #d1d5db !important;
+            cursor: not-allowed;
+        }
+        #congratulations-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #congratulations-message.show {
+            opacity: 1;
+        }
+        #certificate-form-container {
+            display: none;
+        }
+        #certificate-form-container.show {
+            display: block;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                max-height: none;
+            }
+            .social-links {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="progress-container">
+        <div class="container mx-auto px-6">
+            <p class="text-sm font-semibold mb-1">Progresso: <span id="progress-text">0%</span></p>
+            <div class="w-full bg-gray-200 rounded">
+                <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <header class="bg-gradient-to-r from-blue-800 to-blue-600 text-white py-4">
+        <div class="container mx-auto px-6">
+            <h1 class="text-3xl font-bold">Treinamento: NR-10 Segurança Elétrica</h1>
+            <p class="text-lg">Capacitação Completa em Segurança em Instalações e Serviços Elétricos</p>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8 flex flex-col md:flex-row gap-6">
+        <aside class="md:w-1/3 bg-white p-4 rounded-lg shadow-md sidebar">
+            <h2 class="text-xl font-semibold mb-3 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                </svg>
+                <svg class="w-6 h-6 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                Selecionar Módulo
+            </h2>
+            <select id="module-selector" class="w-full p-3 border rounded bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500 text-base">
+                <option value="">Escolha um Módulo</option>
+                <option value="module1">1. Bem-vindo ao Treinamento</option>
+                <option value="module2">2. Cultura Organizacional</option>
+                <option value="module3">3. Comunicação em Segurança</option>
+                <option value="module4">4. Introdução à NR-10</option>
+                <option value="module5">5. Procedimentos de Segurança</option>
+                <option value="module6">6. Prevenção de Incêndios</option>
+                <option value="module7">7. Classes de Incêndio</option>
+                <option value="module8">8. Combate a Incêndios</option>
+                <option value="module9">9. Quiz Rápido</option>
+                <option value="module10">10. Conclusão</option>
+            </select>
+        </aside>
+
+        <main class="md:w-2/3 bg-white p-6 rounded-lg shadow-md">
+            <div id="content-area">
+                <h2 class="text-2xl font-semibold mb-4 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 1 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                    A Importância do Treinamento NR-10
+                </h2>
+                <p class="text-base mb-3">O treinamento NR-10 é um requisito essencial para todos os profissionais que trabalham com eletricidade, conforme estabelecido pela Norma Regulamentadora 10 do Ministério do Trabalho. Este curso capacita eletricistas, técnicos, engenheiros e outros trabalhadores a identificar e mitigar riscos elétricos, como choques, arcos elétricos e incêndios, que causam cerca de 627 mortes e 1.500 acidentes graves por ano no Brasil (dados estimados pela Abracopel).</p>
+                <p class="text-base mb-3">Com uma abordagem prática e teórica, o curso cobre:</p>
+                <ul class="list-disc pl-5 text-base mb-3">
+                    <li>Construção de uma cultura organizacional robusta (Módulo 2).</li>
+                    <li>Comunicação eficaz para prevenir acidentes (Módulo 3).</li>
+                    <li>Normas e procedimentos da NR-10 para trabalho seguro (Módulos 4 e 5).</li>
+                    <li>Prevenção e combate a incêndios, incluindo classes e equipamentos (Módulos 6 a 8).</li>
+                    <li>Avaliação interativa com quiz para reforçar o aprendizado (Módulo 9).</li>
+                </ul>
+                <p class="text-base mb-3">Além de cumprir a legislação, este treinamento promove a segurança, reduz custos com acidentes e aumenta a produtividade. Selecione um módulo no menu à esquerda para começar sua jornada rumo a um trabalho mais seguro.</p>
+            </div>
+        </main>
+    </div>
+
+    <div id="congratulations-message" class="bg-white p-6 rounded-lg shadow-lg text-center max-w-md hidden">
+        <h2 class="text-2xl font-bold text-orange-600 mb-4">Parabéns!</h2>
+        <p class="text-lg mb-4">Você concluiu o curso NR-10 com sucesso! Desejamos muito sucesso na sua jornada profissional segura.</p>
+        <button id="close-congrats" class="bg-orange-600 text-white font-semibold py-2 px-4 rounded hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400">Fechar</button>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-base mb-2">© 2025 Treinamento: NR-10 Segurança Elétrica. Todos os direitos reservados.</p>
+            <p class="text-base mb-3">Ensino para formar profissionais. Vivo para edificar gerações.</p>
+            <div class="flex justify-center gap-6 social-links mb-4">
+                <a href="https://www.instagram.com/coordenadormedeiros" class="flex items-center text-white hover:text-orange-500 social-link" target="_blank">
+                    <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.332.014 7.052.072 2.95.227.228 2.996.073 7.052.014 8.332 0 8.741 0 12c0 3.259.014 3.668.072 4.948.225 4.053 2.992 6.771 7.048 6.927 1.28.058 1.689.072 4.948.072s3.668-.014 4.948-.072c4.054-.156 6.772-2.874 6.927-6.93.058-1.28.072-1.689.072-4.948s-.014-3.668-.072-4.948c-.156-4.054-2.874-6.772-6.93-6.927C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm0 10.162a3.999 3.999 0 110-7.998 3.999 3.999 0 010 7.998zm6.406-11.845a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z"/>
+                    </svg>
+                    @coordenadormedeiros
+                </a>
+                <a href="https://wa.me/5561981397421" class="flex items-center text-white hover:text-orange-500 social-link" target="_blank">
+                    <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.117.558 4.114 1.532 5.853L0 24l6.297-1.532A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22.054a9.977 9.977 0 01-5.094-1.406l-.354-.198-3.73.908.916-3.642-.206-.36a9.96 9.96 0 01-1.532-5.406c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10zm5.964-7.053c-.328-.164-1.94-.954-2.242-1.064-.302-.11-.521-.164-.739.164-.219.328-.853 1.064-.985 1.283-.132.219-.263.246-.602.082-.328-.164-1.39-.512-2.65-1.634-1.283-1.149-2.146-2.575-2.378-3.003-.232-.428-.024-.657.175-.821.175-.146.394-.37.592-.554.197-.184.263-.246.394-.41.132-.164.066-.246-.033-.344-.099-.098-.886-.955-1.215-1.313-.328-.356-.657-.302-.886-.302h-.755c-.232 0-.602.082-.916.411-.315.328-1.203 1.17-1.203 2.85s1.234 3.31 1.405 3.542c.175.232 2.443 3.74 5.914 5.242.821.356 1.463.568 1.966.73.592.191 1.13.164 1.556.1.478-.073 1.94-.794 2.211-1.56.263-.766.263-1.426.197-1.56-.066-.136-.302-.219-.631-.383z"/>
+                    </svg>
+                    (61) 98139-7421
+                </a>
+                <a href="https://www.linkedin.com/in/chefemedeiros" class="flex items-center text-white hover:text-orange-500 social-link" target="_blank">
+                    <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22.23 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.72V1.72C24 .77 23.21 0 22.23 0zM7.12 20.45H3.56V9.06h3.56v11.39zM5.34 7.67c-1.14 0-2.06-.92-2.06-2.06 0-1.14.92-2.06 2.06-2.06s2.06.92 2.06 2.06c0 1.14-.92 2.06-2.06 2.06zm15.11 12.78h-3.56v-5.56c0-1.33-.03-3.03-1.85-3.03-1.85 0-2.13 1.44-2.13 2.94v5.65H9.3V9.06h3.41v1.55h.05c.47-.89 1.62-1.83 3.34-1.83 3.57 0 4.23 2.35 4.23 5.41v6.26z"/>
+                    </svg>
+                    chefemedeiros
+                </a>
+            </div>
+            <div id="certificate-form-container" class="max-w-md mx-auto">
+                <h3 class="text-lg font-semibold mb-2">Solicite seu Certificado</h3>
+                <p class="text-base mb-4">Preencha os campos abaixo para receber seu certificado de conclusão:</p>
+                <div class="space-y-4">
+                    <div>
+                        <label for="full-name" class="block text-sm font-medium">Nome Completo</label>
+                        <input type="text" id="full-name" required class="w-full p-2 border rounded bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                    <div>
+                        <label for="cpf" class="block text-sm font-medium">CPF</label>
+                        <input type="text" id="cpf" required pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" placeholder="123.456.789-00" class="w-full p-2 border rounded bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium">E-mail</label>
+                        <input type="email" id="email" required class="w-full p-2 border rounded bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                    <button id="submit-certificate" class="bg-orange-600 text-white font-semibold py-2 px-4 rounded hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 w-full">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Script para XLSX (mantido, mas não usado diretamente)
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+            return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+            if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+                try {
+                    var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                    var firstSheetName = workbook.SheetNames[0];
+                    var worksheet = workbook.Sheets[firstSheetName];
+                    var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                    var filteredData = jsonData.filter(row => row.some(filledCell));
+                    var headerRowIndex = filteredData.findIndex((row, index) =>
+                        row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                    );
+                    if (headerRowIndex === -1 || headerRowIndex > 25) {
+                        headerRowIndex = 0;
+                    }
+                    var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
+                    csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                    return csv;
+                } catch (e) {
+                    console.error(e);
+                    return "";
+                }
+            }
+            return gk_fileData[filename] || "";
+        }
+
+        // Gerenciamento de Progresso
+        const totalModules = 10;
+        let completedModules = JSON.parse(localStorage.getItem('completedModules')) || [];
+
+        function updateProgress() {
+            const progress = (completedModules.length / totalModules) * 100;
+            document.getElementById('progress-text').textContent = `${progress.toFixed(0)}%`;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            localStorage.setItem('completedModules', JSON.stringify(completedModules));
+
+            if (progress === 100) {
+                showCertificateForm();
+                showCongratulations();
+                launchConfetti();
+            }
+        }
+
+        function showCertificateForm() {
+            const formContainer = document.getElementById('certificate-form-container');
+            formContainer.classList.add('show');
+        }
+
+        function showCongratulations() {
+            const congratsMessage = document.getElementById('congratulations-message');
+            congratsMessage.classList.remove('hidden');
+            congratsMessage.classList.add('show');
+        }
+
+        function launchConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+            setTimeout(() => {
+                confetti({
+                    particleCount: 50,
+                    spread: 90,
+                    origin: { y: 0.8 }
+                });
+            }, 250);
+        }
+
+        function markModuleCompleted(moduleId) {
+            if (!completedModules.includes(moduleId)) {
+                completedModules.push(moduleId);
+                updateProgress();
+            }
+        }
+
+        // Conteúdo dos Módulos
+        const moduleContent = {
+            module1: {
+                title: "1. Bem-vindo ao Treinamento",
+                content: `
+                    <h3 class="text-lg font-semibold mb-2">Introdução ao Curso NR-10</h3>
+                    <p><strong>Duração</strong>: 8 horas (4h teóricas + 4h práticas)</p>
+                    <p><strong>Público-alvo</strong>: Eletricistas, técnicos em elétrica, engenheiros, supervisores e trabalhadores que realizam instalação, operação, manutenção ou inspeção em sistemas elétricos de baixa ou alta tensão.</p>
+                    <p><strong>Objetivos</strong>:</p>
+                    <ul class="list-disc pl-5 text-base">
+                        <li>Capacitar para identificar riscos elétricos (choques, arcos voltaicos, incêndios).</li>
+                        <li>Ensinar procedimentos de segurança conforme a NR-10.</li>
+                        <li>Promover uma cultura de segurança, comunicação eficaz e responsabilidade.</li>
+                        <li>Preparar para situações de emergência, como acidentes elétricos ou incêndios.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2 mt-4">Por que é Essencial?</h3>
+                    <p class="text-base mb-3">Acidentes elétricos são uma das principais causas de morte no trabalho. Em 2021, o Brasil registrou 627 óbitos por choques elétricos, segundo a Associação Brasileira de Conscientização dos Perigos da Eletricidade (Abracopel). O treinamento NR-10 é obrigatório (artigo 10.8 da norma) e deve ser renovado a cada dois anos ou em casos de mudança de função ou retorno ao trabalho.</p>
+                    <p><strong>Estrutura do Curso</strong></p>
+                    <ul class="list-disc pl-5 text-base mb-3">
+                        <li><strong>Módulos Teóricos</strong>: Fundamentos da NR-10, cultura organizacional, comunicação e prevenção de incêndios.</li>
+                        <li><strong>Módulos Práticos</strong>: Procedimentos de desenergização, uso de EPIs e combate a incêndios.</li>
+                        <li><strong>Avaliação</strong>: Quiz interativo e reflexões práticas.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Estudo de Caso</h3>
+                    <p class="text-base mb-3">Em uma obra, um eletricista sofreu choque ao tocar um cabo que não foi desenergizado. A falta de treinamento em NR-10 foi a causa raiz. Após implementar o curso, a empresa reduziu incidentes em 15% em um ano.</p>
+                    <p class="text-base mb-4"><strong>Pergunta Reflexiva</strong>: Que medidas de segurança você já viu no seu ambiente de trabalho? Como elas se alinham com a NR-10?</p>
+                    <p class="text-base italic mb-4">"Segurança elétrica: um compromisso com a vida."</p>
+                    <button class="conclude-button bg-orange-600 text-white font-semibold py-2 px-6 rounded hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400" data-module="module1" ${completedModules.includes('module1') ? 'disabled' : ''}>Concluir Módulo</button>
+                `
+            },
+            module2: {
+                title: "2. Cultura Organizacional",
+                content: `
+                    <h3 class="text-lg font-semibold mb-2">Conceitos Fundamentais</h3>
+                    <p><strong>Objetivo</strong>: Construir uma cultura organizacional que priorize a segurança como valor central.</p>
+                    <p class="text-base mb-3">A cultura organizacional define como os trabalhadores percebem e praticam a segurança. Uma empresa com cultura forte reduz acidentes em até 40% (segundo estudos da OSHA).</p>
+                    <h3 class="text-lg font-semibold mb-2">Componentes da Cultura de Segurança</h3>
+                    <ul class="list-disc pl-5 text-base">
+                        <li><strong>Comportamento</strong>: Reconhecer atitudes de risco, como pressa ou improvisação, e promover mudanças. Exemplo: evitar trabalhar sob pressão sem EPIs adequados.</li>
+                        <li><strong>Ética Organizacional</strong>: Promover transparência (ex.: relatar falhas sem medo de represálias) e responsabilidade civil compartilhada entre gestores e funcionários.</li>
+                        <li><strong>Direitos e Deveres</strong>:
+                            <ul class="list-disc pl-5">
+                                <li><strong>Direitos</strong>: Acesso a treinamento, EPIs certificados (ex.: luvas isolantes classe 2) e condições seguras.</li>
+                                <li><strong>Deveres</strong>: Seguir normas, reportar riscos e participar de programas de segurança.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Estrutura</strong>: Definir papéis claros, com supervisores treinados para reforçar normas e monitorar práticas.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Práticas Recomendadas</h3>
+                    <ul class="list-decimal pl-5 text-base">
+                        <li>Realizar reuniões diárias de segurança (DDS) para discutir riscos específicos.</li>
+                        <li>Implementar programas de incentivo, como premiações por práticas seguras.</li>
+                        <li>Envolver todos os níveis hierárquicos em auditorias de segurança.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Estudo de Caso</h3>
+                    <p class="text-base mb-3">Uma concessionária de energia elétrica introduziu um programa de DDS e auditorias mensais. Após um ano, os acidentes caíram 25% e a produtividade aumentou devido à confiança dos trabalhadores.</p>
+                    <h3 class="text-lg font-semibold mb-2">Reflexão Prática</h3>
+                    <p class="text-base mb-3">Como a cultura de segurança é promovida na sua empresa? Liste 3 ações que poderiam ser adotadas para melhorar a adesão às normas de segurança.</p>
+                    <p class="text-base mt-4 mb-4 font-semibold italic">Uma cultura forte é a fundação de um ambiente seguro!</p>
+                    <button class="conclude-button bg-orange-600 text-white font-semibold py-2 px-6 rounded hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400" data-module="module2" ${completedModules.includes('module2') ? 'disabled' : ''}>Concluir Módulo</button>
+                `
+            },
+            module3: {
+                title: "3. Comunicação em Segurança",
+                content: `
+                    <h3 class="text-lg font-semibold mb-2">Conceitos Fundamentais</h3>
+                    <p><strong>Objetivo</strong>: Garantir comunicação clara e assertiva para prevenir acidentes.</p>
+                    <p class="text-base mb-3">A comunicação é crítica em ambientes elétricos, onde um mal pode levar a acidentes graves.</p>
+                    <h3 class="text-lg font-semibold mb-2">Barreiras de Comunicação</h3>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-500">
+                                <th class="p-3 text-white font-semibold">Tipo</th>
+                                <th class="p-3 text-white font-semibold">Descrição</th>
+                                <th class="p-3 text-white font-semibold">Exemplo</th>
+                                <th class="p-3 text-white font-semibold">Solução</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-200">
+                                <td class="p-3 text-base">Mecânica</td>
+                                <td class="p-3 text-base">Interferências físicas que atrapalham a mensagem</td>
+                                <td class="p-3 text-base">Ruído de geradores</td>
+                                <td class="p-3 text-base">Usar rádios ou sinais visuais</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="p-3 text-base">Linguagem</td>
+                                <td class="p-3 text-base">Uso de termos complexos ou ambíguos</td>
+                                <td class="p-3 text-base">Jargões técnicos sem explicação</td>
+                                <td class="p-3 text-base">Simplificar e treinar</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="p-3 text-base">Psicológica</td>
+                                <td class="p-3 text-base">Emoções que afetam a compreensão</td>
+                                <td class="p-3 text-base">Estresse em emergências</td>
+                                <td class="p-3 text-base">Promover calma e clareza</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-base">Cultural</td>
+                                <td class="p-3 text-base">Diferenças de valores ou hábitos</td>
+                                <td class="p-3 text-base">Desrespeito a normas locais</td>
+                                <td class="p-3 text-base">Treinamento intercultural</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 class="text-lg font-semibold mb-2">Habilidades-Chave</h3>
+                    <ul class="list-disc pl-5 text-base">
+                        <li><strong>Escuta Ativa</strong>: Confirmar entendimento repetindo instruções (ex.: “Entendido, desenergizar o circuito A”).</li>
+                        <li><strong>Empatia</strong>: Reconhecer preocupações dos colegas, criando confiança.</li>
+                        <li><strong>Feedback Claro</strong>: Relatar riscos imediatamente ao supervisor.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Estudo de Caso</h3>
+                    <p class="text-base mb-3">Em uma manutenção, um técnico não entendeu a instrução de desenergização devido a ruídos. O uso de rádio com confirmação verbal evitou um choque.</p>
+                    <h3 class="text-lg font-semibold mb-2">Prática Reflexiva</h3>
+                    <p class="text-base mb-4">Que barreiras de comunicação você já enfrentou no trabalho? Proponha duas soluções práticas para superá-las.</p>
+                    <p class="text-lg font-semibold mb-4">Comunicação eficaz salva vidas!</p>
+                    <button class="conclude-button bg-orange-600 text-white font-semibold py-2 px-6 rounded hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400" data-module="module3" ${completedModules.includes('module3') ? 'disabled' : ''}>Concluir Módulo</button>
+                `
+            },
+            module4: {
+                title: "4. Introdução à NR-10",
+                content: `
+                    <h3 class="text-lg font-semibold mb-2">Conceitos Fundamentais</h3>
+                    <p><strong>Objetivo</strong>: Compreender o escopo, princípios e aplicações da Norma Regulamentadora 10.</p>
+                    <p class="text-base mb-3">A NR-10, criada em 1978 e revisada em 2020, é a norma do Ministério do Trabalho que regula a segurança em instalações e serviços com eletricidade.</p>
+                    <h3 class="text-lg font-semibold mb-2">Escopo e Aplicação</h3>
+                    <ul class="list-disc pl-5 text-base">
+                        <li>Aplica-se a sistemas com tensão ≥ 50 V (AC) ou ≥ 120 V (DC), cobrindo geração, transmissão, distribuição e consumo.</li>
+                        <li><strong>Fases</strong>: Projeto, construção, operação, manutenção e inspeção de instalações.</li>
+                        <li><strong>Exigências</strong>: Treinamento obrigatório, uso de EPIs, prontuário de instalações elétricas e relatórios técnicos.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Princípios-Chave</h3>
+                    <ul class="list-disc pl-5 text-base">
+                        <li><strong>Responsabilidade Compartilhada</strong>: Empregadores, contratantes e terceirizados devem garantir conformidade.</li>
+                        <li><strong>Prevenção</strong>: Adoção de medidas técnicas e administrativas para eliminar riscos.</li>
+                        <li><strong>Capacitação</strong>: Treinamento inicial (8h) e reciclagem bienal ou em mudanças de função.</li>
+                        <li><strong>Documentação</strong>: Prontuário deve incluir diagramas unifilários e análises de risco.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Impacto no Setor</h3>
+                    <p class="text-base mb-3">Desde sua implementação, a NR-10 reduziu em 25% os acidentes fatais em instalações elétricas (Abracopel, 2022). Empresas certificadas têm menor rotatividade e custos com indenizações.</p>
+                    <h3 class="text-lg font-semibold mb-2">Estudo de Caso</h3>
+                    <p class="text-base mb-3">Uma indústria metalúrgica implementou a NR-10, com treinamento e prontuários. Após dois anos, acidentes caíram 40%, e a empresa ganhou certificação ISO 45001.</p>
+                    <h3 class="text-lg font-semibold mb-2">Reflexão Prática</h3>
+                    <p class="text-base mb-4">Quais aspectos da NR-10 você já observou no seu local de trabalho? Como melhorar a conformidade?</p>
+                    <p class="text-base mb-4 font-semibold">A NR-10 é a base para a segurança elétrica!</p>
+                    <button class="conclude-button bg-orange-600 text-white font-semibold py-2 px-6 rounded hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400" data-module="module4" ${completedModules.includes('module4') ? 'disabled' : ''}>Concluir Módulo</button>
+                `
+            },
+            module5: {
+                title: "5. Procedimentos de Segurança",
+                content: `
+                    <h3 class="text-lg font-semibold mb-2">Conceitos Fundamentais</h3>
+                    <p><strong>Objetivo</strong>: Dominar práticas seguras para trabalhar em instalações elétricas.</p>
+                    <p class="text-base mb-3">Os procedimentos da NR-10 (artigo 10.2) visam garantir que o trabalho seja realizado sem riscos elétricos, como choques, arcos elétricos ou incêndios.</p>
+                    <h3 class="text-lg font-semibold mb-2">Etapas para Trabalho Seguro</h3>
+                    <ol class="list-decimal pl-5 text-base">
+                        <li><strong>Desenergização</strong>:
+                            <ul class="list-disc pl-5">
+                                <li>Desligar todas as fontes (ex.: chaves gerais, disjuntores).</li>
+                                <li>Usar cadeados e etiquetas de bloqueio (lockout/tagout).</li>
+                                <li>Evitar confiar em controles automáticos (ex.: relés).</li>
+                            </ul>
+                        </li>
+                        <li><strong>Verificação de Ausência de Tensão</strong>:
+                            <ul class="list-disc pl-5">
+                                <li>Testar com voltímetro calibrado (ex.: Fluke T150).</li>
+                                <li>Confirmar ausência de energia operando controles do equipamento.</li>
+                                <li>Testar o voltímetro em fonte operacional antes e depois.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Descarga de Energia Residual</strong>:
+                            <ul class="list-disc pl-5">
+                                <li>Descarregar capacitores com varinhas de aterramento.</li>
+                                <li>Curto-circuitar ou aterrar elementos de alta capacitância.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Proteção Temporária</strong>:
+                            <ul class="list-disc pl-5">
+                                <li>Instalar barreiras ou sinalização para evitar reenergização acidental.</li>
+                                <li>Usar EPIs (ex.: luvas isolantes, botas dielétricas).</li>
+                            </ul>
+                        </li>
+                        <li><strong>Reenergização</strong>:
+                            <ul class="list-disc pl-5">
+                                <li>Remover aterramentos e curtos-circuitos.</li>
+                                <li>Inspecionar para garantir segurança.</li>
+                                <li>Afastar pessoal antes de ligar.</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    <h3 class="text-lg font-semibold mb-2">Casos Especiais</h3>
+                    <ul class="list-disc pl-5 text-base">
+                        <li><strong>Impossibilidade de Bloqueio</strong>: Usar etiquetas e EPIs adicionais.</li>
+                        <li><strong>Alta Tensão</strong>: Requer treinamento específico e EPIs de classe superior.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Estudo de Caso</h3>
+                    <p class="text-base mb-3">Um eletricista sofreu arco elétrico por não verificar tensão. Após treinamento em lockout/tagout, a empresa eliminou incidentes semelhantes.</p>
+                    <h3 class="text-lg font-semibold mb-2">Reflexão Prática</h3>
+                    <p class="text-base mb-4">Quais procedimentos de segurança você já aplica? Como melhorar a adesão na sua equipe?</p>
+                    <p class="text-base mb-4 font-semibold">Rígidez nos procedimentos evita tragédias!</p>
+                    <button class="conclude-button bg-orange-600 text-white font-semibold py-2 px-6 rounded hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400" data-module="module5" ${completedModules.includes('module5') ? 'disabled' : ''}>Concluir Módulo</button>
+                `
+            },
+            module6: {
+                title: "6. Prevenção de Incêndios",
+                content: `
+                    <h3 class="text-lg font-semibold mb-2">Conceitos Fundamentais</h3>
+                    <p><strong>Objetivo</strong>: Implementar medidas preventivas para evitar incêndios em ambientes elétricos.</p>
+                    <p class="text-base mb-3">Incêndios elétricos representam 30% dos sinistros em indústrias (Abracopel, 2022). A prevenção é a melhor estratégia.</p>
+                    <h3 class="text-lg font-semibold mb-2">Medidas Preventivas</h3>
+                    <ol class="list-decimal pl-5 text-base">
+                        <li><strong>Armazenamento Seguro</strong>:
+                            <ul class="list-disc pl-5">
+                                <li>Manter inflamáveis em armários metálicos, longe de faíscas.</li>
+                                <li>Proibir acionar em áreas de risco.</li>
+                                <li>Evitar acúmulo de resíduos combustíveis (ex.: serragem).</li>
+                            </ul>
+                        </li>
+                        <li><strong>Instalações Elétricas</strong>:
+                            <ul class="list-disc pl-5">
+                                <li>Usar cabos com isolamento adequado (ex.: NBR 5410).</li>
+                                <li>Evitar extensões improvisadas ou sobrecarga.</li>
+                                <li>Substituir fusíveis por equivalentes.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Manutenção</strong>:
+                            <ul class="list-disc pl-5">
+                                <li>Inspecionar instalações a cada 6 meses.</li>
+                                <li>Lubrificar máquinas para reduzir calor por atrito.</li>
+                                <li>Manter extintores acessíveis, com sinalização visível.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Treinamento</strong>:
+                            <ul class="list-disc pl-5">
+                                <li>Capacitar equipes para identificar riscos.</li>
+                                <li>Realizar simulações trimestrais.</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    <h3 class="text-lg font-semibold mb-2">Estudo de Caso</h3>
+                    <p class="text-base mb-3">Um incêndio em uma fábrica foi causado por sobrecarga em uma tomada. Revisão das instalações eliminou novos sinistros.</p>
+                    <h3 class="text-lg font-semibold mb-2">Reflexão Prática</h3>
+                    <p class="text-base mb-4">Quais medidas preventivas sua empresa já adota? Proponha duas ações para melhorar.</p>
+                    <p class="text-base mb-4 font-semibold">Prevenir incêndios é investir em segurança!</p>
+                    <button class="conclude-button bg-orange-600 text-white font-semibold py-2 px-6 rounded hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400" data-module="module6" ${completedModules.includes('module6') ? 'disabled' : ''}>Concluir Módulo</button>
+                `
+            },
+            module7: {
+                title: "7. Classes de Incêndio",
+                content: `
+                    <h3 class="text-lg font-semibold mb-2">Conceitos Fundamentais</h3>
+                    <p><strong>Objetivo</strong>: Identificar os tipos de incêndios para escolher os métodos de combate adequados.</p>
+                    <p class="text-base mb-3">Conhecer as classes de incêndio é essencial para agir com precisão e segurança.</p>
+                    <h3 class="text-lg font-semibold mb-2">Classificação</h3>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-500">
+                                <th class="p-3 text-white font-semibold">Classe</th>
+                                <th class="p-3 text-white font-semibold">Material</th>
+                                <th class="p-3 text-white font-semibold">Características</th>
+                                <th class="p-3 text-white font-semibold">Exemplo</th>
+                                <th class="p-3 text-white font-semibold">Agente Indicado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-200">
+                                <td class="p-2 text-base">A</td>
+                                <td class="p-2 text-base">Sólidos combustíveis</td>
+                                <td class="p-2 text-base">Queima em profundidade, deixa cinzas</td>
+                                <td class="p-2 text-base">Madeira, papel</td>
+                                <td class="p-2 text-base">Água, espuma</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="p-2 text-base">B</td>
+                                <td class="p-2 text-base">Líquidos inflamáveis</td>
+                                <td class="p-2 text-base">Queima rápida, fumaça densa</td>
+                                <td class="p-2 text-base">Gasolina, óleo</td>
+                                <td class="p-2 text-base">CO2, pó químico</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="p-2 text-base">C</td>
+                                <td class="p-2 text-base">Equipamentos elétricos</td>
+                                <td class="p-2 text-base">Circuitos energizados</td>
+                                <td class="p-2 text-base">Motores, quadros</td>
+                                <td class="p-2 text-base">CO2, pó químico</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 text-base">D</td>
+                                <td class="p-2 text-base">Metais combustíveis</td>
+                                <td class="p-2 text-base">Queima intensa</td>
+                                <td class="p-2 text-base">Magnésio, titânio</td>
+                                <td class="p-2 text-base">Pó químico especial</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 class="text-lg font-semibold mb-2">Tipos de Fumaça</h3>
+                    <ul class="list-disc pl-5 text-base">
+                        <li><strong>Branca/Cinza Clara</strong>: Sólidos (ex.: madeira).</li>
+                        <li><strong>Preta/Escura</strong>: Combustão incompleta (ex.: óleos).</li>
+                        <li><strong>Amarela/Vermelha</strong>: Gases químicos tóxicos.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Estudo de Caso</h3>
+                    <p class="text-base mb-3">Um incêndio Classe C foi agravado por uso de água. Treinamento em classes de incêndio evitou erros futuros.</p>
+                    <h3 class="text-lg font-semibold mb-2">Reflexão Prática</h3>
+                    <p class="text-base mb-4">Que tipos de materiais combustíveis estão no seu ambiente de trabalho? Como classificá-los?</p>
+                    <p class="text-base mb-4 font-semibold">Identificação correta é ação eficaz!</p>
+                    <button class="conclude-button bg-orange-600 text-white font-semibold py-2 px-6 rounded hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400" data-module="module7" ${completedModules.includes('module7') ? 'disabled' : ''}>Concluir Módulo</button>
+                `
+            },
+            module8: {
+                title: "8. Combate a Incêndios",
+                content: `
+                    <h3 class="text-lg font-semibold mb-2">Conceitos Fundamentais</h3>
+                    <p><strong>Objetivo</strong>: Dominar técnicas e equipamentos para combater incêndios com segurança.</p>
+                    <p class="text-base mb-3">O combate eficaz requer conhecimento das classes de incêndio e uso correto dos equipamentos.</p>
+                    <h3 class="text-lg font-semibold mb-2">Métodos de Extinção</h3>
+                    <ul class="list-disc pl-5 text-base">
+                        <li><strong>Resfriamento</strong>: Reduz temperatura (ex.: água para Classe A).</li>
+                        <li><strong>Abafamento</strong>: Elimina oxigênio (ex.: CO2 para Classes B, C).</li>
+                        <li><strong>Quebra da Reação</strong>: Interrompe combustão com agentes químicos.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Equipamentos de Combate</h3>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-blue-500">
+                                <th class="p-3 text-white font-semibold">Equipamento</th>
+                                <th class="p-3 text-white font-semibold">Classes</th>
+                                <th class="p-3 text-white font-semibold">Cuidados</th>
+                                <th class="p-3 text-white font-semibold">Exemplo de Uso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-200">
+                                <td class="p-2 text-base">Extintor de Água (10L)</td>
+                                <td class="p-2 text-base">A</td>
+                                <td class="p-2 text-base">Não usar em B, C, D</td>
+                                <td class="p-2 text-base">Incêndio em madeira</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="p-2 text-base">Extintor de CO2/Espuma</td>
+                                <td class="p-2 text-base">B, C</td>
+                                <td class="p-2 text-base">Evitar em A, D</td>
+                                <td class="p-2 text-base">Quadro elétrico</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="p-2 text-base">Hidrante</td>
+                                <td class="p-2 text-base">A</td>
+                                <td class="p-2 text-base">Não usar para limpeza</td>
+                                <td class="p-2 text-base">Incêndio em depósito</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 text-base">Pó Químico Especial</td>
+                                <td class="p-2 text-base">D</td>
+                                <td class="p-2 text-base">Uso específico</td>
+                                <td class="p-2 text-base">Metais combustíveis</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 class="text-lg font-semibold mb-2">Procedimentos Operacionais</h3>
+                    <ol class="list-decimal pl-5 text-base">
+                        <li>Acionar alarme e avaliar evacuação.</li>
+                        <li>Escolher o extintor correto.</li>
+                        <li>Usar técnica P.A.S.S.:
+                            <ul class="list-disc pl-5">
+                                <li><strong>P</strong>: Puxar o pino.</li>
+                                <li><strong>A</strong>: Apontar para a base do fogo.</li>
+                                <li><strong>S</strong>: Pressionar a alavanca.</li>
+                                <li><strong>S</strong>: Varrer de lado a lado.</li>
+                            </ul>
+                        </li>
+                        <li>Manter distância segura e rota de fuga.</li>
+                    </ol>
+                    <h3 class="text-lg font-semibold mb-2">Estudo de Caso</h3>
+                    <p class="text-base mb-3">Um incêndio Classe B foi controlado com CO2, evitando danos maiores. O uso de água teria espalhado o fogo.</p>
+                    <h3 class="text-lg font-semibold mb-2">Reflexão Prática</h3>
+                    <p class="text-base mb-4">Quais equipamentos de combate a incêndio estão disponíveis no seu local de trabalho? Você sabe usá-los?</p>
+                    <p class="text-base mb-4 font-semibold">Combater com técnica correta é salvar vidas!</p>
+                    <button class="conclude-button bg-orange-600 text-white font-semibold py-2 px-6 rounded hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400" data-module="module8" ${completedModules.includes('module8') ? 'disabled' : ''}>Concluir Módulo</button>
+                `
+            },
+            module9: {
+                title: "9. Quiz Rápido",
+                content: `
+                    <h3 class="text-lg font-semibold mb-3">Avaliação Interativa</h3>
+                    <p><strong>Objetivo</strong>: Testar conhecimentos adquiridos no curso.</p>
+                    <p class="text-base mb-2">1. Qual é o primeiro passo antes de trabalhar em um circuito elétrico?</p>
+                    <div class="quiz-option" data-question="1" data-answer="a">a) Ligar o circuito</div>
+                    <div class="quiz-option" data-question="1" data-answer="b">b) Desenergizar e bloquear</div>
+                    <div class="quiz-option" data-question="1" data-answer="c">c) Usar EPI sem testar</div>
+                    <p class="text-base mt-4 mb-2 hidden explanation" id="explanation-1">Correto: Desenergizar e bloquear é essencial para segurança. Ligar o circuito ou usar EPI sem testar é perigoso.</p>
+                    <p class="text-base mb-2 mt-4">2. Qual extintor é adequado para incêndios de Classe C?</p>
+                    <div class="quiz-option" data-question="2" data-answer="a">a) Água</div>
+                    <div class="quiz-option" data-question="2" data-answer="b">b) CO2</div>
+                    <p class="text-base mt-4 mb-2 hidden explanation" id="explanation-2">Correto: CO2 é adequado para Classe C (equipamentos elétricos). Água pode causar choques.</p>
+                    <p class="text-base mb-2 mt-4">3. Qual barreira de comunicação é causada por ruído de máquinas?</p>
+                    <div class="quiz-option" data-question="3" data-answer="a">a) Psicológica</div>
+                    <div class="quiz-option" data-question="3" data-answer="b">b) Mecânica</div>
+                    <div class="quiz-option" data-question="3" data-answer="c">c) Linguagem</div>
+                    <p class="text-base mt-4 mb-2 hidden explanation" id="explanation-3">Correto: Ruído é uma barreira mecânica, dificultando a audição de instruções.</p>
+                    <p class="text-base mb-2 mt-4">4. Qual é um princípio-chave da NR-10?</p>
+                    <div class="quiz-option" data-question="4" data-answer="a">a) Trabalhar sem EPIs</div>
+                    <div class="quiz-option" data-question="4" data-answer="b">b) Responsabilidade compartilhada</div>
+                    <div class="quiz-option" data-question="4" data-answer="c">c) Ignorar prontuários</div>
+                    <p class="text-base mt-4 mb-2 hidden explanation" id="explanation-4">Correto: A NR-10 exige responsabilidade compartilhada entre empregadores e trabalhadores.</p>
+                    <p class="text-base mb-2 mt-4">5. Qual medida previne incêndios elétricos?</p>
+                    <div class="quiz-option" data-question="5" data-answer="a">a) Sobrecarga de circuitos</div>
+                    <div class="quiz-option" data-question="5" data-answer="b">b) Inspeções regulares</div>
+                    <div class="quiz-option" data-question="5" data-answer="c">c) Uso de arames como fusíveis</div>
+                    <p class="text-base mt-4 mb-2 hidden explanation" id="explanation-5">Correto: Inspeções regulares identificam riscos, evitando incêndios.</p>
+                    <p class="text-base mb-4 font-semibold">Teste seus conhecimentos e aprenda com os resultados!</p>
+                    <button class="conclude-button bg-orange-600 text-white font-semibold py-2 px-6 rounded hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400" data-module="module9" ${completedModules.includes('module9') ? 'disabled' : ''}>Concluir Módulo</button>
+                `
+            },
+            module10: {
+                title: "10. Conclusão",
+                content: `
+                    <h3 class="text-lg font-semibold mb-3">Revisão Final</h3>
+                    <p><strong>Objetivo</strong>: Consolidar o aprendizado e planejar a aplicação prática.</p>
+                    <p class="text-base mb-3">Este curso NR-10 capacita você a trabalhar com segurança, protegendo vidas e cumprindo a legislação.</p>
+                    <h3 class="text-lg font-semibold mb-2">Resumo dos Aprendizados</h3>
+                    <ul class="list-disc pl-5 text-base">
+                        <li><strong>Cultura de Segurança</strong>: Adote atitudes preventivas e lidere com ética.</li>
+                        <li><strong>Comunicação</strong>: Use escuta ativa e clareza para evitar erros.</li>
+                        <li><strong>NR-10</strong>: Siga procedimentos de lockout/tagout e use EPIs.</li>
+                        <li><strong>Incêndios</strong>: Previna com manutenção e combata com técnicas corretas.</li>
+                        <li><strong>Avaliação</strong>: Teste conhecimentos para reforçar aprendizado.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Impacto Prático</h3>
+                    <p class="text-base mb-3">Profissionais capacitados reduzem acidentes em até 30% (Abracopel, 2022), aumentam a confiança e diminuem custos.</p>
+                    <h3 class="text-lg font-semibold mb-2">Próximos Passos</h3>
+                    <ul class="list-disc pl-5 text-base">
+                        <li>Aplicar lockout/tagout e inspeções no dia a dia.</li>
+                        <li>Participar de reciclagem bienal (NR-10, artigo 10.8).</li>
+                        <li>Promover DDS e treinar equipes.</li>
+                        <li>Consular o Manual de Segurança Elétrica do MTE.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Estudo de Caso</h3>
+                    <p class="text-base mb-3">Uma usina implementou lockout/tagout após um acidente. Após o treinamento, incidentes caíram a zero em dois anos.</p>
+                    <h3 class="text-lg font-semibold mb-2">Reflexão Final</h3>
+                    <p class="text-base mb-4">Como você aplicará o aprendizado no seu trabalho? Liste três ações práticas.</p>
+                    <p class="text-base mb-4 font-semibold">Parabéns por concluir o curso! Você está pronto para trabalhar com segurança.</p>
+                    <button class="conclude-button bg-orange-600 text-white font-semibold py-2 px-6 rounded hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400" data-module="module10" ${completedModules.includes('module10') ? 'disabled' : ''}>Concluir Módulo</button>
+                `
+            }
+        };
+
+        const contentArea = document.getElementById('content-area');
+        const moduleSelector = document.getElementById('module-selector');
+        const initialContent = contentArea.innerHTML;
+
+        function loadModuleContent(moduleId) {
+            contentArea.classList.add('fade');
+            setTimeout(() => {
+                if (!moduleId) {
+                    contentArea.innerHTML = initialContent;
+                } else if (moduleContent[moduleId]) {
+                    const { title, content } = moduleContent[moduleId];
+                    const iconSVG = `
+                        <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                        </svg>
+                    `;
+                    contentArea.innerHTML = `
+                        <h2 class="text-2xl font-semibold mb-4 flex items-center">${iconSVG}${title}</h2>
+                        <div class="text-gray-700 text-base leading-relaxed">${content}</div>
+                    `;
+                    if (moduleId === 'module9') {
+                        setupQuizListeners();
+                    }
+                    setupConcludeButtonListeners();
+                }
+                contentArea.classList.remove('fade');
+            }, 300);
+        }
+
+        function setupQuizListeners() {
+            const quizOptions = document.querySelectorAll('.quiz-option');
+            const correctAnswers = {
+                1: 'b',
+                2: 'b',
+                3: 'b',
+                4: 'b',
+                5: 'b'
+            };
+
+            quizOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const question = option.dataset.question;
+                    const answer = option.dataset.answer;
+
+                    document.querySelectorAll(`.quiz-option[data-question="${question}"]`).forEach(opt => {
+                        opt.classList.remove('correct', 'incorrect');
+                        opt.style.pointerEvents = 'none';
+                    });
+
+                    if (correctAnswers[question] === answer) {
+                        option.classList.add('correct');
+                    } else {
+                        option.classList.add('incorrect');
+                        const correctOption = document.querySelector(`.quiz-option[data-question="${question}"][data-answer="${correctAnswers[question]}"]`);
+                        if (correctOption) {
+                            correctOption.classList.add('correct');
+                        }
+                    }
+                    const explanation = document.getElementById(`explanation-${question}`);
+                    if (explanation) {
+                        explanation.classList.remove('hidden');
+                    }
+                });
+            });
+        }
+
+        function setupConcludeButtonListeners() {
+            const buttons = document.querySelectorAll('.conclude-button');
+            buttons.forEach(button => {
+                // Remove listener before adding to prevent duplicates if function is called multiple times for same content
+                button.removeEventListener('click', handleButtonClick); 
+                button.addEventListener('click', handleButtonClick);
+            });
+        }
+
+        function handleButtonClick(event) {
+            const button = event.currentTarget;
+            const moduleId = button.dataset.module;
+            if (moduleId) {
+                markModuleCompleted(moduleId);
+                button.disabled = true;
+            }
+        }
+
+        // Formulário de Certificado
+        const submitButton = document.getElementById('submit-certificate');
+        submitButton.addEventListener('click', () => {
+            const name = document.getElementById('full-name').value;
+            const cpf = document.getElementById('cpf').value;
+            const email = document.getElementById('email').value;
+
+            if (name && cpf && email) {
+                alert(`Solicitação enviada!\nNome: ${name}\nCPF: ${cpf}\nE-mail: ${email}\nEntraremos em contato em breve.`);
+            } else {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+            }
+        });
+
+        // Fechar Mensagem de Parabéns
+        const closeCongratsButton = document.getElementById('close-congrats');
+        closeCongratsButton.addEventListener('click', () => {
+            const congratsMessage = document.getElementById('congratulations-message');
+            congratsMessage.classList.remove('show');
+            setTimeout(() => {
+                congratsMessage.classList.add('hidden');
+            }, 500); // Match transition duration
+        });
+
+        moduleSelector.addEventListener('change', (event) => {
+            loadModuleContent(event.target.value);
+        });
+
+        // Inicializar progresso e carregar módulo inicial se houver algum selecionado (ex: por reload de página)
+        updateProgress();
+        if (moduleSelector.value) {
+            loadModuleContent(moduleSelector.value);
+        }
+    </script>
+</body>
+</html>
